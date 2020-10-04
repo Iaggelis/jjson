@@ -1,0 +1,17 @@
+{
+    "twitch": {
+        "account": "<twitch-account>",
+        "token": "<twitch-oauth-token>",
+        "clientId": "<twitch-client-id>"
+    },
+
+    "discord": {
+        "token": "<discord-token>"
+    },
+
+    "github": {
+        "token": "<github-token>"
+    },
+
+    "test": [1,2,3,4]
+}
