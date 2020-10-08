@@ -202,4 +202,10 @@ function parser(tokens::Vector{Any})
 
 end # parser
 
+function parsejson(filename::String)
+    tokens = lexer(filename)
+    parsed_json, _ = parser(tokens)
+    return parsed_json
+end # parsejson
+
 end # module
