@@ -1,12 +1,6 @@
 module jjson
 
-
-
-function readfile_as_string(filename::String)
-    lines = readlines(filename, keep=true) |> join
-    return lines
-end # readfile_as_string
-
+using Mmap
 
 const JSON_COMMA        = ','
 const JSON_COLON        = ':'
@@ -20,7 +14,7 @@ const JSON_WHITESPACE = [' ', '\t', '\b', '\n', '\r']
 const JSON_SYNTAX     = [JSON_COMMA, JSON_COLON, JSON_LEFTBRACKET,
                          JSON_RIGHTBRACKET, JSON_LEFTBRACE, JSON_RIGHTBRACE]
 
-function lex_string(lines::Union{Char,String})
+function lex_string!(lines)
 
     jsonString = ""
 
@@ -44,7 +38,7 @@ function lex_string(lines::Union{Char,String})
 
 end # lex_string
 
-function lex_number(lines::Union{Char,String})
+function lex_number!(lines)
     jsonNum = ""
     numbers = [convert(Char, string(i)[1]) for i in 0:9]
     push!(numbers, '-', 'e', '.')
@@ -71,7 +65,7 @@ function lex_number(lines::Union{Char,String})
 
 end # lex_number
 
-function lex_bool(lines::Union{Char,String})
+function lex_bool!(lines)
 
     if length(lines) >= 4
         if lines[:4] == "true"
@@ -88,23 +82,25 @@ end # lex_bool
 
 # function lexer(lines::Union{Char,String})
 function lexer(filename::String)
-    lines::String = join(readlines(filename, keep=true))
+    # lines::String = join(readlines(filename, keep=true))
+    lines = String(Mmap.mmap(filename, Vector{UInt8}, filesize(filename)))
+
     tokens = Vector{Any}()
 
     while length(lines) > 0
-        jsonString, lines = lex_string(String(lines))
+        jsonString, lines = lex_string!(lines)
         if jsonString !== nothing
             push!(tokens, jsonString)
             continue
         end # if
 
-        jsonNum, lines = lex_number(String(lines))
+        jsonNum, lines = lex_number!(lines)
         if jsonNum !== nothing
             push!(tokens, jsonNum)
             continue
         end # if
 
-        jsonBool, lines = lex_bool(String(lines))
+        jsonBool, lines = lex_bool!(lines)
         if jsonBool !== nothing
             push!(tokens, jsonBool)
             continue
@@ -203,7 +199,9 @@ function parser(tokens::Vector{Any})
 end # parser
 
 function parsejson(filename::String)
+    # open(filename) do io
     tokens = lexer(filename)
+    # end
     parsed_json, _ = parser(tokens)
     return parsed_json
 end # parsejson
