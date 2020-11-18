@@ -25,7 +25,7 @@ const JSON_SYNTAX     = [JSON_COMMA, JSON_COLON, JSON_LEFTBRACKET,
 
 function parsejson(filename::String)
     tokens = lexer(filename)
-    parsed_json, _ = parser(tokens)
+    parsed_json = parser!(tokens)
     return parsed_json
 end # parsejson
 

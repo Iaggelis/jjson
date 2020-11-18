@@ -1,40 +1,41 @@
 # Parser
-function parse_array(tokens::Vector{Any})
+function parse_array!(tokens::Vector{Any})
     jsonArray = Vector{Any}()
 
-    t = tokens[1]
-    if t == JSON_RIGHTBRACKET
-        return jsonArray, tokens[2:end]
+
+    if tokens[1] == JSON_RIGHTBRACKET
+        popfirst!(tokens)
+        return jsonArray
     end # if
 
     while true
-        rest, tokens = parser(tokens)
+        rest = parser!(tokens)
         push!(jsonArray, rest)
-        t = tokens[1]
 
-        if t == JSON_RIGHTBRACKET
-            return jsonArray, tokens[2:end]
-        elseif t != JSON_COMMA
+        if tokens[1] == JSON_RIGHTBRACKET
+            popfirst!(tokens)
+            return jsonArray
+        elseif tokens[1] != JSON_COMMA
             error("No comma found in array")
         else
-            tokens = tokens[2:end]
+            popfirst!(tokens)
         end # if
     end # while
 
 end # parse_array
 
-function parse_object(tokens::Vector{Any})
+function parse_object!(tokens::Vector{Any})
     jsonObject = Dict{String, Any}()
 
-    t = tokens[1]
-    if t == JSON_RIGHTBRACE
-        return jsonObject, tokens[2:end]
+    if tokens[1] == JSON_RIGHTBRACE
+        popfirst!(tokens)
+        return jsonObject
     end # if
 
     while true
         jsonKey = tokens[1]
         if typeof(jsonKey) == String
-            tokens = tokens[2:end]
+            popfirst!(tokens)
         else
             error("Expected key string, but got ", jsonKey)
         end # if
@@ -43,34 +44,35 @@ function parse_object(tokens::Vector{Any})
             error("Expected colon but got ", tokens[1])
         end # if
 
-        jsonValue, tokens = parser(tokens[2:end])
+        popfirst!(tokens)
 
-        jsonObject[jsonKey] = jsonValue
+        # jsonValue =
+        jsonObject[jsonKey] = parser!(tokens)
 
-        t = tokens[1]
 
-        if t == JSON_RIGHTBRACE
-            return jsonObject, tokens[2:end]
-        elseif t != JSON_COMMA
-            error("Expected comma in object")
+        if tokens[1] == JSON_RIGHTBRACE
+            popfirst!(tokens)
+            return jsonObject
+        elseif tokens[1] != JSON_COMMA
+            error("Expected comma in object but got", tokens[1])
         end # if
 
         try
-            tokens = tokens[2:end]
+            popfirst!(tokens)
         catch
         end
     end # while
 end # parse_object
 
-function parser(tokens::Vector{Any})
+function parser!(tokens::Vector{Any})
     t = tokens[1]
-
+    popfirst!(tokens)
     if t == JSON_LEFTBRACKET
-        return parse_array(tokens[2:end])
+        return parse_array!(tokens)
     elseif t == JSON_LEFTBRACE
-        return parse_object(tokens[2:end])
+        return parse_object!(tokens)
     else
-        return t, tokens[2:end]
+        return t
     end # if
 
 end # parser
