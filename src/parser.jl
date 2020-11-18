@@ -2,7 +2,6 @@
 function parse_array!(tokens::Vector{Any})
     jsonArray = Vector{Any}()
 
-
     if tokens[1] == JSON_RIGHTBRACKET
         popfirst!(tokens)
         return jsonArray
@@ -46,7 +45,6 @@ function parse_object!(tokens::Vector{Any})
 
         popfirst!(tokens)
 
-        # jsonValue =
         jsonObject[jsonKey] = parser!(tokens)
 
 
@@ -65,8 +63,7 @@ function parse_object!(tokens::Vector{Any})
 end # parse_object
 
 function parser!(tokens::Vector{Any})
-    t = tokens[1]
-    popfirst!(tokens)
+    t = popfirst!(tokens)
     if t == JSON_LEFTBRACKET
         return parse_array!(tokens)
     elseif t == JSON_LEFTBRACE

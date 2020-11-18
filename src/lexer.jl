@@ -1,5 +1,7 @@
+numbers = [convert(Char, string(i)[1]) for i in 0:9]
+push!(numbers, '-', 'e', '.')
+
 function lex_string!(lines::Vector{Char})
-    jsonString = ""
 
     if lines[1] == JSON_QUOTE
         if length(lines) > 1
@@ -10,6 +12,7 @@ function lex_string!(lines::Vector{Char})
     end # if
 
 
+    jsonString = ""
     for c in lines
         if c == JSON_QUOTE
             if length(lines) > 1
@@ -17,8 +20,7 @@ function lex_string!(lines::Vector{Char})
             end
             return jsonString
         else
-            # jsonString *= c
-            jsonString = string(jsonString, c)
+            jsonString *= c
         end # if
     end # for
 
@@ -28,8 +30,6 @@ end # lex_string
 
 function lex_number!(lines::Vector{Char})
     jsonNum = ""
-    numbers = [convert(Char, string(i)[1]) for i in 0:9]
-    push!(numbers, '-', 'e', '.')
 
     for c in lines
         if c in numbers
@@ -73,12 +73,10 @@ end # lex_bool
 
 function lexer(filename::String)
     lines = Vector{Char}(Mmap.mmap(filename, Vector{UInt8}, filesize(filename)))
-    # println("[DEBUG]:", "got lines with len ", length(lines))
 
     tokens = Vector{Any}()
 
     while length(lines) > 0
-        # println("[DEBUG]:", "got lines with len ", length(lines))
         jsonString = lex_string!(lines)
         if jsonString !== nothing
             push!(tokens, jsonString)
@@ -97,13 +95,11 @@ function lexer(filename::String)
             continue
         end # if
 
-        c = lines[1]
 
-        if c in JSON_WHITESPACE
+        if lines[1] in JSON_WHITESPACE
             popfirst!(lines)
-        elseif c in JSON_SYNTAX
-            push!(tokens, c)
-            lines = lines[2:end]
+        elseif lines[1] in JSON_SYNTAX
+            push!(tokens, popfirst!(lines))
         end # if
     end # while
 
