@@ -1,3 +1,12 @@
 # Pepega json parser in julia
 
-** TESTED ONLY IN A 5 LINES JSON FILE **
+** SCUFFED JSON PARSER **
+
+
+# Usage
+
+``` julia
+using jjson
+jjson.parse_file(<filename>)
+```
+
