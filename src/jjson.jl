@@ -23,9 +23,9 @@ const JSON_WHITESPACE = [' ', '\t', '\b', '\n', '\r']
 const JSON_SYNTAX     = [JSON_COMMA, JSON_COLON, JSON_LEFTBRACKET,
                          JSON_RIGHTBRACKET, JSON_LEFTBRACE, JSON_RIGHTBRACE]
 
-function parsejson_from_file(filename::String)
+function parse_file(filename::String)
     tokens = lexer(filename)
     return parser!(tokens)
-end # parsejson_from_file
+end # parse_file
 
 end # module
