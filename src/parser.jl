@@ -7,8 +7,8 @@ function parse_array!(tokens::Vector{Any})
         return jsonArray
     end # if
 
-    while true
-        rest = parser!(tokens)
+    @inbounds while true
+        rest = @views parser!(tokens)
         push!(jsonArray, rest)
 
         if tokens[1] == JSON_RIGHTBRACKET
@@ -31,7 +31,7 @@ function parse_object!(tokens::Vector{Any})
         return jsonObject
     end # if
 
-    while true
+    @inbounds while true
         jsonKey = tokens[1]
         if typeof(jsonKey) == String
             popfirst!(tokens)
@@ -45,7 +45,7 @@ function parse_object!(tokens::Vector{Any})
 
         popfirst!(tokens)
 
-        jsonObject[jsonKey] = parser!(tokens)
+        jsonObject[jsonKey] = @views parser!(tokens)
 
 
         if tokens[1] == JSON_RIGHTBRACE
